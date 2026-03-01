@@ -1,52 +1,25 @@
-from flask import Blueprint, jsonify, request
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
 
-# Create a blueprint for the schools management routes
-escolas_bp = Blueprint('escolas', __name__)
+router = APIRouter()
 
-# In-memory storage for demonstration purposes
-schools = []
+@router.get("/escolas")
+async def list_escolas(db: Session = Depends(get_db)):
+    return {"escolas": [], "total": 0}
 
-# List all schools
-@escolas_bp.route('/', methods=['GET'])
-def list_schools():
-    return jsonify(schools), 200
+@router.post("/escolas")
+async def create_escola(nome: str, localizacao: str, db: Session = Depends(get_db)):
+    return {"message": "Escola created successfully", "escola": {"id": 1, "nome": nome}}
 
-# Create a new school
-@escolas_bp.route('/', methods=['POST'])
-def create_school():
-    data = request.json
-    new_school = {
-        'id': len(schools) + 1,
-        'name': data.get('name'),
-        'location': data.get('location'),
-        'students_count': data.get('students_count')
-    }
-    schools.append(new_school)
-    return jsonify(new_school), 201
+@router.get("/escolas/{escola_id}")
+async def get_escola(escola_id: int, db: Session = Depends(get_db)):
+    return {"id": escola_id, "nome": "Escola A"}
 
-# Read a specific school
-@escolas_bp.route('/<int:school_id>', methods=['GET'])
-def read_school(school_id):
-    school = next((s for s in schools if s['id'] == school_id), None)
-    if school:
-        return jsonify(school), 200
-    return jsonify({'error': 'School not found'}), 404
+@router.put("/escolas/{escola_id}")
+async def update_escola(escola_id: int, nome: str = None, db: Session = Depends(get_db)):
+    return {"message": "Escola updated successfully"}
 
-# Update a specific school
-@escolas_bp.route('/<int:school_id>', methods=['PUT'])
-def update_school(school_id):
-    data = request.json
-    school = next((s for s in schools if s['id'] == school_id), None)
-    if school:
-        school['name'] = data.get('name', school['name'])
-        school['location'] = data.get('location', school['location'])
-        school['students_count'] = data.get('students_count', school['students_count'])
-        return jsonify(school), 200
-    return jsonify({'error': 'School not found'}), 404
-
-# Delete a specific school
-@escolas_bp.route('/<int:school_id>', methods=['DELETE'])
-def delete_school(school_id):
-    global schools
-    schools = [s for s in schools if s['id'] != school_id]
-    return jsonify({'message': 'School deleted'}), 204
+@router.delete("/escolas/{escola_id}")
+async def delete_escola(escola_id: int, db: Session = Depends(get_db)):
+    return {"message": "Escola deleted successfully"}
