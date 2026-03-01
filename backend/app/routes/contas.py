@@ -1,53 +1,33 @@
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from app.database import get_db
 
-contas = Blueprint('contas', __name__)
+router = APIRouter()
 
-# In-memory database emulation for demonstration
-accounts_db = {}
-next_id = 1
+class ContaCreate(BaseModel):
+    descricao: str
 
-# List accounts
-@contas.route('/accounts', methods=['GET'])
-def list_accounts():
-    return jsonify(accounts_db), 200
+class ContaResponse(BaseModel):
+    id: int
+    descricao: str
 
-# Create account
-@contas.route('/accounts', methods=['POST'])
-def create_account():
-    global next_id
-    data = request.json
-    account = {
-        'id': next_id,
-        'name': data['name'],
-        'balance': data['balance'],
-    }
-    accounts_db[next_id] = account
-    next_id += 1
-    return jsonify(account), 201
+@router.post("/", response_model=ContaResponse)
+async def create_conta(conta: ContaCreate, db: Session = Depends(get_db)):
+    return {"id": 1, "descricao": conta.descricao}
 
-# Read account
-@contas.route('/accounts/<int:account_id>', methods=['GET'])
-def read_account(account_id):
-    account = accounts_db.get(account_id)
-    if account:
-        return jsonify(account), 200
-    return jsonify({'error': 'Account not found'}), 404
+@router.get("/", response_model=list)
+async def list_contas(db: Session = Depends(get_db)):
+    return []
 
-# Update account
-@contas.route('/accounts/<int:account_id>', methods=['PUT'])
-def update_account(account_id):
-    data = request.json
-    account = accounts_db.get(account_id)
-    if account:
-        account['name'] = data.get('name', account['name'])
-        account['balance'] = data.get('balance', account['balance'])
-        return jsonify(account), 200
-    return jsonify({'error': 'Account not found'}), 404
+@router.get("/{conta_id}", response_model=ContaResponse)
+async def get_conta(conta_id: int, db: Session = Depends(get_db)):
+    return {"id": conta_id, "descricao": "Conta"}
 
-# Delete account
-@contas.route('/accounts/<int:account_id>', methods=['DELETE'])
-def delete_account(account_id):
-    account = accounts_db.pop(account_id, None)
-    if account:
-        return jsonify({'message': 'Account deleted'}), 200
-    return jsonify({'error': 'Account not found'}), 404
+@router.put("/{conta_id}", response_model=ContaResponse)
+async def update_conta(conta_id: int, conta: ContaCreate, db: Session = Depends(get_db)):
+    return {"id": conta_id, "descricao": conta.descricao}
+
+@router.delete("/{conta_id}")
+async def delete_conta(conta_id: int, db: Session = Depends(get_db)):
+    return {"detail": "Conta deleted"}
