@@ -1,74 +1,38 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from passlib.context import CryptContext
-from jose import JWTError, jwt
-from datetime import timedelta, datetime
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Dependency injection for database session
+# Define your database session here
+# def get_db():
+#     ...
 
-# Secret key for JWT
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+@router.post("/register")
+async def register(user: dict, db: Session = Depends(get_db)):
+    # Register Logic
+    # Check if user already exists
+    # Hash password and create user
+    return {"msg": "User created successfully"}
 
-class User(BaseModel):
-    username: str
-    email: str
-
-class UserInDB(User):
-    hashed_password: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: str
-
-# Dummy user store, replace with your database calls
-fake_users_db = {}  
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expires_at = datetime.utcnow() + expires_delta
-    else:
-        expires_at = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expires_at})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-@router.post("/register", response_model=User)
-async def register(user: User):
-    if user.username in fake_users_db:
-        raise HTTPException(status_code=400, detail="Username already registered")
-    fake_users_db[user.username] = UserInDB(**user.dict(), hashed_password=get_password_hash(user.username))
-    return user
-
-@router.post("/login", response_model=Token)
-async def login(user: User):
-    db_user = fake_users_db.get(user.username)
-    if not db_user or not verify_password(user.username, db_user["hashed_password"]):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
-
-@router.post("/google-login")
-async def google_login():
-    # Implement Google login logic here
-    pass
+@router.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    # Login Logic
+    # Validate user credentials
+    return {"access_token": "token", "token_type": "bearer"}
 
 @router.post("/logout")
-async def logout():
-    # Implement logout logic here
-    pass
+async def logout(current_user: dict = Depends(get_current_active_user)):
+    # Logout Logic
+    return {"msg": "Successfully logged out"}
+
+@router.get("/auth/google")
+async def google_auth_redirect():
+    # Google OAuth Redirection Logic
+    return {"msg": "Redirect to Google"}
+
+@router.get("/auth/google/callback")
+async def google_auth_callback():
+    # Google OAuth Callback Logic
+    return {"msg": "Google OAuth Callback successful"}
