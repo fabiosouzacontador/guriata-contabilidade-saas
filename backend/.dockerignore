@@ -1,0 +1,22 @@
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+ pytest_cache
+.coverage
+htmlcov
+.env
+.venv
+venv/
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+.github
+tests/
+README.md
+LICENSE
+.editorconfig
+.flake8
+.pylintrc
