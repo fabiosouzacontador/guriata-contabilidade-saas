@@ -1,20 +1,37 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.pool import NullPool
+import os
 
-DATABASE_URL = 'postgresql://user:password@localhost/dbname'
+DATABASE_URL = os.getenv(
+    'DATABASE_URL',
+    'postgresql://neondb_owner:npg_0KfgnawGRQ1s@ep-fragrant-term-aiv7d4tv-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+)
 
-# Create the SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    poolclass=NullPool,
+    connect_args={
+        "connect_timeout": 10,
+        "sslmode": "require",
+        "channel_binding": "require"
+    },
+    echo=os.getenv('DEBUG', 'False').lower() == 'true'
+)
 
-# Create a configured "Session" class
-Session = scoped_session(sessionmaker(bind=engine))
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
-# Create a Base class for declarative models
+Session = scoped_session(SessionLocal)
 Base = declarative_base()
 
-# Example Base model definition
-class ExampleModel(Base):
-    __tablename__ = 'example'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
