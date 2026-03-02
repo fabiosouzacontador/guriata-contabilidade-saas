@@ -4,6 +4,6 @@ from app.database import get_db
 
 router = APIRouter()
 
-@router.get("/turmas")
-async def list_turmas(db: Session = Depends(get_db)):
-    return {"turmas": [], "total": 0}
+@router.get("/escolas")
+async def list_escolas(db: Session = Depends(get_db)):
+    return {"escolas": [], "total": 0}

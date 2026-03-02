@@ -1,1 +1,35 @@
+<<<<<<< HEAD
 version: '3.8'\nservices:\n  postgres:\n    image: postgres:13\n    restart: always\n    environment:\n      POSTGRES_USER: user\n      POSTGRES_PASSWORD: password\n      POSTGRES_DB: database\n    ports:\n      - "5432:5432"\n\n  redis:\n    image: redis:6\n    restart: always\n    ports:\n      - "6379:6379"\n\n  fastapi:\n    build: .\n    restart: always\n    ports:\n      - "8000:8000"\n    depends_on:\n      - postgres\n      - redis\n    environment:\n      DATABASE_URL: postgres://user:password@postgres/database\n      REDIS_URL: redis://redis:6379/0\n
+=======
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: guriata_db
+    environment:
+      POSTGRES_USER: guriata
+      POSTGRES_PASSWORD: guriata_password
+      POSTGRES_DB: guriata_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: guriata_backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://guriata:guriata_password@db:5432/guriata_db
+      DEBUG: "True"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+>>>>>>> 3b9531b (feat: Complete backend setup with all routes and Docker configuration)

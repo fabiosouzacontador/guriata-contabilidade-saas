@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from datetime import datetime
+=======
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
+>>>>>>> 3b9531b (feat: Complete backend setup with all routes and Docker configuration)
 
 router = APIRouter()
 
 @router.get("/lancamentos")
 async def list_lancamentos(db: Session = Depends(get_db)):
     return {"lancamentos": [], "total": 0}
+<<<<<<< HEAD
 
 @router.post("/lancamentos")
 async def create_lancamento(conta_debito: str, conta_credito: str, valor: float, db: Session = Depends(get_db)):
@@ -36,3 +43,9 @@ async def get_diario_contabil(db: Session = Depends(get_db)):
 @router.get("/relatorios/balancete")
 async def get_balancete(db: Session = Depends(get_db)):
     return {"relatorio": "balancete", "contas": []}
+=======
+
+@router.post("/lancamentos")
+async def create_lancamento(conta_debito: str, conta_credito: str, valor: float, db: Session = Depends(get_db)):
+    return {"message": "Lancamento created"}
+>>>>>>> 3b9531b (feat: Complete backend setup with all routes and Docker configuration)

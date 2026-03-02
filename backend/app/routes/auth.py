@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -36,3 +37,18 @@ async def google_auth_redirect():
 async def google_auth_callback():
     # Google OAuth Callback Logic
     return {"msg": "Google OAuth Callback successful"}
+=======
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
+
+router = APIRouter()
+
+@router.post("/register")
+async def register(email: str, password: str, name: str, db: Session = Depends(get_db)):
+    return {"message": "User registered successfully"}
+
+@router.post("/login")
+async def login(email: str, password: str, db: Session = Depends(get_db)):
+    return {"access_token": "token", "token_type": "bearer"}
+>>>>>>> 3b9531b (feat: Complete backend setup with all routes and Docker configuration)

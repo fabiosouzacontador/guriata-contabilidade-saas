@@ -12,12 +12,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-<<<<<<< HEAD
-@app.get("/")
-def read_root():
-    return {"message": "Guriata Backend Running"}
-
-=======
 try:
     from app.routes import auth
     app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
@@ -52,14 +46,9 @@ except ImportError as e:
 def read_root():
     return {"message": "Guriata Backend Running"}
 
->>>>>>> 3b9531b (feat: Complete backend setup with all routes and Docker configuration)
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     uvicorn.run(app, host="0.0.0.0", port=8000)
-=======
-    uvicorn.run(app, host="0.0.0.0", port=8000)
->>>>>>> 3b9531b (feat: Complete backend setup with all routes and Docker configuration)
