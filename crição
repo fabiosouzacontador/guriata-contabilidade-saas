@@ -1,0 +1,48 @@
+[33macacbbc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: Complete backend setup with all routes and Docker configuration
+[33m50b8ba1[m Create escolas.py file with FastAPI routes
+[33mab6c4d3[m Create lancamentos.py file in the backend routes
+[33m4ebfc0e[m Add authentication routes for FastAPI in auth.py
+[33mead77eb[m Create main.py for FastAPI application
+[33mc4314df[m Updated README.md with comprehensive project documentation
+[33md358a8d[m Create requirements.txt with backend dependencies
+[33m3133689[m Create .gitignore for Python, Node.js, and IDE files
+[33m0f199b0[m Create docker-compose.yml file with PostgreSQL, Redis, and FastAPI services
+[33m75670fa[m Create routes package initialization
+[33mad39853[m Create users.py with user registration, login, and CRUD endpoints
+[33mc900785[m Create .env file with database configuration
+[33m9fafbc5[m Updated database.py with new database connection code
+[33m7854870[m Update .env.example with Neon PostgreSQL connection string and JWT_SECRET_KEY
+[33m0ee8e9c[m Create CRUD endpoints for contas contábeis
+[33mbfab1d6[m Create __init__.py to import all models
+[33med089a6[m Create docker-compose.yml file with PostgreSQL and backend service configurations
+[33mafa5d7c[m Create .dockerignore file in backend directory
+[33m01c30b2[m Create Dockerfile for backend setup
+[33m10f5355[m Create users.py for user management routes
+[33mdf6de04[m Add FastAPI authentication routes in auth.py
+[33m9a0bd21[m Create __init__.py with router imports
+[33meaefb21[m Update requirements.txt with new package versions
+[33ma6317c2[m Create Makefile for build commands
+[33m071babe[m Create backend/docker-compose.yml file
+[33m4f78a6a[m Add .gitignore file for backend
+[33m19ecc00[m Create index.js entry point for React application
+[33mdaa5e2a[m Create App.js file with React component structure
+[33ma359ad9[m Create frontend/package.json with React dependencies
+[33mc5d3ca3[m Create atividades.py file for activities management routes with CRUD endpoints
+[33ma9d649d[m Add AI tutor routes for feedback generation, suggestions, and corrections
+[33m40dc45a[m Create accounting reports routes file
+[33m014d9cc[m Create classes management routes for turmas
+[33m491d032[m Create escolas.py for schools management routes
+[33m3230979[m Create user management routes in users.py
+[33m901055d[m Create contas.py for accounting accounts routes
+[33mb7b577b[m Create accounting entries routes in lancamentos.py
+[33mbc3c176[m Add authentication routes
+[33mc3c3f20[m Create Pydantic models for User, Escola, Turma, ContaContabil, Lancamento, Atividade, and Feedback validation
+[33m1440a1d[m Create SQLAlchemy models for User, Escola, Turma, ContaContabil, Lancamento, Atividade, and Feedback.
+[33m612c054[m Add Dockerfile for FastAPI application
+[33m48cc575[m Create .env.example file with example environment variables
+[33m384be00[m Create backend/app/database.py file with PostgreSQL connection setup
+[33m8a7fe53[m Create configuration file for environment variables, database URL, JWT settings, and Google OAuth
+[33mf59734e[m Create main.py for FastAPI application setup
+[33m77fdcd8[m Add Python dependencies for FastAPI, PostgreSQL, JWT, Google OAuth, AI integration, testing to requirements.txt
+[33m1c1edce[m Create backend folder structure and setup
+[33m77ced7f[m Initial commit
