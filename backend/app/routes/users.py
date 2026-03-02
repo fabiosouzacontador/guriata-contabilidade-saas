@@ -1,64 +1,116 @@
-from flask import Blueprint, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from app.database import get_db
+from app import models, schemas
+from passlib.context import CryptContext
 
-# Initialize SQLAlchemy
-db = SQLAlchemy()
-user_bp = Blueprint('user', __name__)
+router = APIRouter(prefix="/api/users", tags=["users"])
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@user_bp.route('/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    # TODO: Add password hashing
-    new_user = User(username=username, password=password)
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({'message': 'User registered successfully'}), 201
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
 
-@user_bp.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    user = User.query.filter_by(username=username, password=password).first()  # TODO: Replace with hashed password check
-    if user:
-        return jsonify({'message': 'Login successful'}), 200
-    return jsonify({'message': 'Invalid credentials'}), 401
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
 
-@user_bp.route('/users', methods=['GET'])
-def get_users():
-    users = User.query.all()
-    return jsonify([{'id': user.id, 'username': user.username} for user in users]), 200
+# ============================================
+# CREATE
+# ============================================
 
-@user_bp.route('/users/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    user = User.query.get(user_id)
-    if user:
-        return jsonify({'id': user.id, 'username': user.username}), 200
-    return jsonify({'message': 'User not found'}), 404
+@router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    """Criar novo usuário"""
+    try:
+        db_user = models.User(
+            email=user.email,
+            nome=user.nome,
+            senha_hash=hash_password(user.senha),
+            eh_professor=user.eh_professor,
+            eh_admin=user.eh_admin
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email já existe"
+        )
 
-@user_bp.route('/users/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
-    data = request.get_json()
-    user = User.query.get(user_id)
-    if user:
-        user.username = data.get('username', user.username)
-        # TODO: Add password hashing
-        db.session.commit()
-        return jsonify({'message': 'User updated successfully'}), 200
-    return jsonify({'message': 'User not found'}), 404
+# ============================================
+# READ
+# ============================================
 
-@user_bp.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    user = User.query.get(user_id)
-    if user:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({'message': 'User deleted successfully'}), 200
-    return jsonify({'message': 'User not found'}), 404
+@router.get("/", response_model=list[schemas.UserResponse])
+async def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """Listar todos os usuários"""
+    users = db.query(models.User).offset(skip).limit(limit).all()
+    return users
+
+@router.get("/{user_id}", response_model=schemas.UserResponse)
+async def get_user(user_id: int, db: Session = Depends(get_db)):
+    """Obter usuário específico"""
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    return user
+
+@router.get("/email/{email}", response_model=schemas.UserResponse)
+async def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    """Obter usuário por email"""
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    return user
+
+# ============================================
+# UPDATE
+# ============================================
+
+@router.put("/{user_id}", response_model=schemas.UserResponse)
+async def update_user(user_id: int, user: schemas.UserUpdate, db: Session = Depends(get_db)):
+    """Atualizar usuário"""
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    
+    update_data = user.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_user, field, value)
+    
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+# ============================================
+# DELETE
+# ============================================
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user_id: int, db: Session = Depends(get_db)):
+    """Deletar usuário"""
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    
+    db.delete(db_user)
+    db.commit()
+    return None

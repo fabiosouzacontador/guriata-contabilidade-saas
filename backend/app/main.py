@@ -21,27 +21,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ============================================
+# ROUTERS
+# ============================================
+
 try:
-    from app.routes import auth
-    app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+    from app.routes import users
+    app.include_router(users.router, tags=["users"])
+except ImportError as e:
+    print(f"Warning: {e}")
+
+try:
+    from app.routes import escolas_crud
+    app.include_router(escolas_crud.router, tags=["escolas"])
+except ImportError as e:
+    print(f"Warning: {e}")
+
+try:
+    from app.routes import turmas_crud
+    app.include_router(turmas_crud.router, tags=["turmas"])
+except ImportError as e:
+    print(f"Warning: {e}")
+
+try:
+    from app.routes import alunos
+    app.include_router(alunos.router, tags=["alunos"])
+except ImportError as e:
+    print(f"Warning: {e}")
+
+try:
+    from app.routes import contas
+    app.include_router(contas.router, tags=["contas"])
 except ImportError as e:
     print(f"Warning: {e}")
 
 try:
     from app.routes import lancamentos
-    app.include_router(lancamentos.router, prefix="/api", tags=["lancamentos"])
+    app.include_router(lancamentos.router, tags=["lancamentos"])
 except ImportError as e:
     print(f"Warning: {e}")
 
 try:
-    from app.routes import escolas
-    app.include_router(escolas.router, prefix="/api", tags=["escolas"])
-except ImportError as e:
-    print(f"Warning: {e}")
-
-try:
-    from app.routes import turmas
-    app.include_router(turmas.router, prefix="/api", tags=["turmas"])
+    from app.routes import auth
+    app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 except ImportError as e:
     print(f"Warning: {e}")
 
@@ -51,12 +73,24 @@ try:
 except ImportError as e:
     print(f"Warning: {e}")
 
+# ============================================
+# HEALTH CHECK
+# ============================================
+
 @app.get("/")
 def read_root():
     return {
         "message": "Guriata Backend Running",
         "version": "1.0.0",
-        "docs": "http://localhost:8000/docs"
+        "docs": "http://localhost:8000/docs",
+        "endpoints": {
+            "users": "/api/users",
+            "escolas": "/api/escolas",
+            "turmas": "/api/turmas",
+            "alunos": "/api/alunos",
+            "contas": "/api/contas",
+            "lancamentos": "/api/lancamentos"
+        }
     }
 
 @app.get("/health")
