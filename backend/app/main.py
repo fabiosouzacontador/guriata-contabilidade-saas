@@ -1,8 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from app.database import Base, engine
+from app import models
 
-app = FastAPI(title="Guriata", version="1.0.0")
+# Criar tabelas
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="Guriata",
+    version="1.0.0",
+    description="SaaS de Contabilidade com IA Tutor para Educação"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,7 +53,11 @@ except ImportError as e:
 
 @app.get("/")
 def read_root():
-    return {"message": "Guriata Backend Running"}
+    return {
+        "message": "Guriata Backend Running",
+        "version": "1.0.0",
+        "docs": "http://localhost:8000/docs"
+    }
 
 @app.get("/health")
 def health():

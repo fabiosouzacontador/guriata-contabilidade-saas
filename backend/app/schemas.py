@@ -1,42 +1,227 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import Optional, List
+from enum import Enum
 
-class User(BaseModel):
-    id: int
-    name: constr(min_length=1)
+# ============================================
+# ENUMS (para Pydantic)
+# ============================================
+
+class TipoConta(str, Enum):
+    ATIVO = "ATIVO"
+    PASSIVO = "PASSIVO"
+    PATRIMONIO = "PATRIMONIO"
+    RECEITA = "RECEITA"
+    DESPESA = "DESPESA"
+
+class StatusLancamento(str, Enum):
+    PENDENTE = "PENDENTE"
+    APROVADO = "APROVADO"
+    REJEITADO = "REJEITADO"
+
+class StatusAluno(str, Enum):
+    ATIVO = "ATIVO"
+    INATIVO = "INATIVO"
+    SUSPENSO = "SUSPENSO"
+
+# ============================================
+# USER SCHEMAS
+# ============================================
+
+class UserBase(BaseModel):
     email: EmailStr
-    is_active: bool = True
+    nome: str
+    eh_professor: bool = False
+    eh_admin: bool = False
 
-class Escola(BaseModel):
-    id: int
-    name: constr(min_length=1)
-    location: str
+class UserCreate(UserBase):
+    senha: str
 
-class Turma(BaseModel):
+class UserUpdate(BaseModel):
+    nome: Optional[str] = None
+    email: Optional[EmailStr] = None
+    eh_professor: Optional[bool] = None
+
+class UserResponse(UserBase):
     id: int
+    ativo: bool
+    criado_em: datetime
+    atualizado_em: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+# ============================================
+# ESCOLA SCHEMAS
+# ============================================
+
+class EscolaBase(BaseModel):
+    nome: str
+    descricao: Optional[str] = None
+    cnpj: Optional[str] = None
+    endereco: Optional[str] = None
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+
+class EscolaCreate(EscolaBase):
+    pass
+
+class EscolaUpdate(BaseModel):
+    nome: Optional[str] = None
+    descricao: Optional[str] = None
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+
+class EscolaResponse(EscolaBase):
+    id: int
+    criador_id: int
+    ativa: bool
+    criado_em: datetime
+    atualizado_em: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+# ============================================
+# TURMA SCHEMAS
+# ============================================
+
+class TurmaBase(BaseModel):
+    nome: str
+    descricao: Optional[str] = None
+    periodo: Optional[str] = None
     escola_id: int
-    name: constr(min_length=1)
-    year: int
+    professor_id: int
 
-class ContaContabil(BaseModel):
-    id: int
-    name: constr(min_length=1)
-    account_type: str
+class TurmaCreate(TurmaBase):
+    pass
 
-class Lancamento(BaseModel):
-    id: int
-    conta_contabil_id: int
-    amount: float
-    date: str
+class TurmaUpdate(BaseModel):
+    nome: Optional[str] = None
+    descricao: Optional[str] = None
+    periodo: Optional[str] = None
 
-class Atividade(BaseModel):
+class TurmaResponse(TurmaBase):
     id: int
+    ativa: bool
+    criado_em: datetime
+    atualizado_em: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+# ============================================
+# ALUNO SCHEMAS
+# ============================================
+
+class AlunoBase(BaseModel):
+    matricula: str
+    nome: str
+    email: Optional[str] = None
+    cpf: Optional[str] = None
     turma_id: int
-    description: constr(min_length=1)
-    date: str
 
-class Feedback(BaseModel):
+class AlunoCreate(AlunoBase):
+    pass
+
+class AlunoUpdate(BaseModel):
+    nome: Optional[str] = None
+    email: Optional[str] = None
+    status: Optional[StatusAluno] = None
+
+class AlunoResponse(AlunoBase):
     id: int
-    user_id: int
-    activity_id: int
-    comment: str
-    rating: int
+    status: StatusAluno
+    criado_em: datetime
+    atualizado_em: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+# ============================================
+# CONTA SCHEMAS
+# ============================================
+
+class ContaBase(BaseModel):
+    codigo: str
+    nome: str
+    descricao: Optional[str] = None
+    tipo: TipoConta
+    saldo_inicial: float = 0.0
+    escola_id: int
+    conta_pai_id: Optional[int] = None
+
+class ContaCreate(ContaBase):
+    pass
+
+class ContaUpdate(BaseModel):
+    nome: Optional[str] = None
+    descricao: Optional[str] = None
+    saldo_inicial: Optional[float] = None
+
+class ContaResponse(ContaBase):
+    id: int
+    saldo_atual: float
+    ativa: bool
+    criado_em: datetime
+    atualizado_em: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+# ============================================
+# LANCAMENTO SCHEMAS
+# ============================================
+
+class LancamentoBase(BaseModel):
+    numero: str
+    descricao: str
+    valor: float
+    conta_debito_id: int
+    conta_credito_id: int
+    turma_id: Optional[int] = None
+    data_vencimento: Optional[datetime] = None
+    observacoes: Optional[str] = None
+
+class LancamentoCreate(LancamentoBase):
+    pass
+
+class LancamentoUpdate(BaseModel):
+    descricao: Optional[str] = None
+    status: Optional[StatusLancamento] = None
+    observacoes: Optional[str] = None
+
+class LancamentoResponse(LancamentoBase):
+    id: int
+    usuario_id: int
+    status: StatusLancamento
+    data_lancamento: datetime
+    criado_em: datetime
+    atualizado_em: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+# ============================================
+# FEEDBACK IA SCHEMAS
+# ============================================
+
+class FeedbackIABase(BaseModel):
+    lancamento_id: int
+    tipo_feedback: str
+    mensagem: str
+    score: int = 0
+
+class FeedbackIACreate(FeedbackIABase):
+    pass
+
+class FeedbackIAResponse(FeedbackIABase):
+    id: int
+    usuario_id: int
+    eh_correto: Optional[bool]
+    explicacao: Optional[str]
+    dicas: Optional[str]
+    criado_em: datetime
+
+    class Config:
+        from_attributes = True
