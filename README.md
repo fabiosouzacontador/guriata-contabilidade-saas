@@ -1,60 +1,159 @@
-# Guriata Contabilidade SaaS
+# 🎓 Guriata Contabilidade SaaS
 
-## Project Documentation
+> **Sistema com IA Tutor para Educação Contabil**
 
-### Architecture
-This project follows a microservices architecture ensuring scalability and separation of concerns. Each microservice is responsible for a specific aspect of the application, communicating over REST APIs.
+Uma plataforma SaaS inovadora que integra lançamentos contábeis, IA Tutor educativa e relatórios automáticos. Ideal para universidades, escolas técnicas e cursos de contabilidade.
 
-### How to Run
-To run the application locally:
-1. Clone the repository: `git clone https://github.com/fabiosouzacontador/guriata-contabilidade-saas.git`
-2. Navigate to the project directory: `cd guriata-contabilidade-saas`
-3. Install dependencies: `npm install`
-4. Start the application: `npm start`
+## ✨ Diferenciais
 
-### API Endpoints
-- **GET /api/v1/example**: Returns example data.
-- **POST /api/v1/example**: Creates a new entry.
-- **PUT /api/v1/example/{id}**: Updates an existing entry.
-- **DELETE /api/v1/example/{id}**: Deletes an entry.
+- 🤖 **IA Tutor Inteligente**: Alunos aprendem contabilidade praticando com sugestões inteligentes
+- 📊 **Relatórios Automáticos**: Balancete, DRE e análises em tempo real
+- 📚 **Multi-Empresa**: Suporte para múltiplas escolas/universidades simultaneamente
+- 🔐 **LGPD-Compliant**: Segurança e privacidade desde a base
+- 🚀 **Escalável**: Pronto para crescer de 1 a 10.000+ usuários
+- 💰 **SaaS B2B**: Modelo de assinatura mensal ou anual
 
-### Development Setup
-1. Ensure you have Node.js and npm installed.
-2. Install all necessary dependencies as mentioned above.
-3. Set up your local environment by copying the `.env.example` to `.env` and filling in the required environment variables.
+## 🎯 Público-Alvo
 
-### Database Models
-The application uses a PostgreSQL database with the following models:
-- **User**: Represents application users with fields such as `id`, `name`, `email`, and `password`.
-- **Transaction**: Represents financial transactions with fields like `id`, `amount`, `date`, `userId`.
+- Universidades (cursos de Contabilidade)
+- Escolas técnicas (técnico em contabilidade)
+- Cursos profissionalizantes e livres
+- Institutos de educação profissional
 
-### Security
-Ensure to use HTTPS for all API requests. Sensitive data should be encrypted in transit and at rest. Implement validation and sanitation of user inputs to prevent XSS and SQL injection attacks.
+## 🚀 Quick Start
 
-### Environment Variables
-- `DATABASE_URL`: The URL for the PostgreSQL database.
-- `JWT_SECRET`: Secret key used for JWT authentication.
-- `PORT`: Port on which the application runs.
+### Pré-requisitos
+- Python 3.9+
+- Node.js 16+
+- Docker e Docker Compose
+- PostgreSQL (ou usar via Docker)
 
-### Testing
-Unit tests can be run using Jest.
-To run tests: `npm test`
+### Setup Local (Com Docker)
 
-### Deployment
-To deploy the application, follow these steps:
-1. Build the application: `npm run build`
-2. Deploy to your cloud provider of choice, ensuring to set all environment variables properly.
+```bash
+# 1. Clone o repositório
+git clone https://github.com/fabiosouzacontador/guriata-contabilidade-saas.git
+cd guriata-contabilidade-saas
 
-### Contribution Guidelines
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix: `git checkout -b feature/my-feature`
-3. Make your changes and commit them: `git commit -m "Add some feature"`
-4. Push to the branch: `git push origin feature/my-feature`
-5. Open a pull request.
+# 2. Suba os serviços (PostgreSQL + Backend + Frontend)
+docker-compose up -d
 
-### License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+# 3. Inicialize o banco de dados
+docker-compose exec backend python app/init_db.py
 
-### Contact Information
-For additional questions or support, please reach out to the project maintainer:
-- **Fabio Souza** - fabiosouzacontador@example.com
+# 4. Acesse a aplicação
+# Frontend: http://localhost:3000
+# Backend (Docs): http://localhost:8000/docs
+```
+
+### Setup Local (Sem Docker)
+
+**Backend:**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env
+# Edite .env com suas configurações
+python main.py
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm start
+```
+
+## 📋 Roadmap (1-3 meses)
+
+### Semana 1-2: Estrutura e Infra
+- [x] Estruturação do repositório
+- [ ] Setup Heroku + PostgreSQL
+- [ ] CI/CD básico (GitHub Actions)
+
+### Semana 3-4: Autenticação
+- [ ] Cadastro e login de usuários
+- [ ] Autenticação JWT
+- [ ] Multi-tenant (múltiplas escolas)
+
+### Semana 4-5: Lançamentos Contábeis
+- [ ] CRUD de lançamentos
+- [ ] Validações contábeis
+- [ ] Isolamento por empresa
+
+### Semana 5-6: Relatórios
+- [ ] Balancete
+- [ ] DRE (Demonstração de Resultado)
+- [ ] Exportação (PDF/Excel)
+
+### Semana 6-7: IA Tutor
+- [ ] FAQ educativa
+- [ ] Sugestões automáticas
+- [ ] Chat com alunos
+
+### Semana 7-8: Frontend
+- [ ] Páginas de login/cadastro
+- [ ] Dashboard
+- [ ] Formulários de lançamentos
+- [ ] Visualização de relatórios
+- [ ] Chat com IA Tutor
+
+### Semana 8-12: Preparação para Venda
+- [ ] Landing page
+- [ ] Integração de pagamentos
+- [ ] Testes com usuários reais
+- [ ] Onboarding e suporte
+
+## 📁 Estrutura do Projeto
+
+```
+backend/          # API FastAPI + PostgreSQL
+frontend/         # Interface web (React)
+docs/            # Documentação
+scripts/         # Scripts auxiliares
+.github/         # Workflows de CI/CD
+```
+
+## 🛠️ Stack Tecnológico
+
+**Backend:**
+- FastAPI (framework web moderno, rápido e fácil)
+- SQLAlchemy (ORM para banco de dados)
+- Pydantic (validação de dados)
+- PyJWT (autenticação)
+- PostgreSQL (banco de dados)
+
+**Frontend:**
+- React (interface interativa)
+- Axios (chamadas HTTP)
+- React Router (navegação)
+- Tailwind CSS (estilos)
+
+**Infraestrutura:**
+- Docker (containerização)
+- Heroku (hospedagem inicial)
+- GitHub Actions (CI/CD)
+
+## 📚 Documentação
+
+- [Setup Local](docs/SETUP.md)
+- [Documentação da API](docs/API.md)
+- [Deploy e Infraestrutura](docs/DEPLOYMENT.md)
+- [Esquema do Banco](docs/DATABASE.md)
+- [Como Contribuir](CONTRIBUTING.md)
+
+## 📞 Contato e Suporte
+
+- Issues: [GitHub Issues](https://github.com/fabiosouzacontador/guriata-contabilidade-saas/issues)
+- Email: seu-email@example.com
+- Website: (em breve)
+
+## 📄 Licença
+
+Este projeto está licenciado sob a [MIT License](LICENSE).
+
+---
+
+**Desenvolvido com ❤️ por Fabio Souza Contador**
