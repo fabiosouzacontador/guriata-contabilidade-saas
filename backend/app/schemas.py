@@ -42,6 +42,14 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     eh_professor: Optional[bool] = None
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    senha: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
 class UserResponse(UserBase):
     id: int
     ativo: bool
