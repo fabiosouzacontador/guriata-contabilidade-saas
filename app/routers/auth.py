@@ -1,26 +1,52 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.schemas import UserCreate, UserResponse, UserLogin, TokenResponse
-from app.database import get_db  # Update this import to your actual DB session dependency
+from datetime import timedelta
 
-router = APIRouter()
+from app.database import get_db
+from app.models.user import User
+from app.schemas.user import UserCreate, UserResponse, TokenResponse
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
 
-@router.post('/empresas', response_model=UserResponse)
-async def create_empresa(user: UserCreate, db: Session = Depends(get_db)):
-    # Logic to create a company with user data
-    pass  # Replace with actual logic
+router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post('/cadastro', response_model=UserResponse)
-async def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    # Logic for user registration
-    pass  # Replace with actual logic
+@router.post("/register", response_model=UserResponse)
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    hashed_password = hash_password(user.password)
+    db_user = User(
+        email=user.email,
+        full_name=user.full_name,
+        hashed_password=hashed_password,
+        empresa_id=user.empresa_id,
+        perfil=user.perfil,
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
-@router.post('/login', response_model=TokenResponse)
-async def login(user: UserLogin, db: Session = Depends(get_db)):
-    # Logic for user login
-    pass  # Replace with actual logic
-
-@router.get('/me', response_model=UserResponse)
-async def get_current_user(db: Session = Depends(get_db)):
-    # Logic to get the current authenticated user
-    pass  # Replace with actual logic
+@router.post("/login", response_model=TokenResponse)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == form_data.username).first()
+    
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.id}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
