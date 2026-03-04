@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.database import Base, engine
-from app import models
+from app import models  # noqa: F401 — importar para registrar todos os modelos no Base
 
-# Criar tabelas
+# Cria todas as tabelas no banco (sem afetar tabelas existentes)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -62,8 +62,8 @@ except ImportError as e:
     print(f"Warning: {e}")
 
 try:
-    from app.routes import auth
-    app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+    from app.routers import auth as jwt_auth
+    app.include_router(jwt_auth.router, prefix="/api/auth", tags=["auth"])
 except ImportError as e:
     print(f"Warning: {e}")
 
