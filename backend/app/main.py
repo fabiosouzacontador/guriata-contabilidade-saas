@@ -62,8 +62,8 @@ except ImportError as e:
     print(f"Warning: {e}")
 
 try:
-    from app.routes import auth
-    app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+    from app.routers import auth as jwt_auth
+    app.include_router(jwt_auth.router)
 except ImportError as e:
     print(f"Warning: {e}")
 
