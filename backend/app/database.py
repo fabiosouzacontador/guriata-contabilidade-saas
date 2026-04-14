@@ -1,9 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-import os
 
-# Usar SQLite em desenvolvimento
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./guriata.db")
+from app.config import DATABASE_URL
 
 # Para SQLite, adicionar check_same_thread=False
 if DATABASE_URL.startswith("sqlite"):
